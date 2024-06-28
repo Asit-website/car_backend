@@ -4,29 +4,28 @@ const userSchema = new mongoose.Schema(
   {
     FullName: {
       type: String,
-      required: true,
-      trim: true,
     },
    
     Email: {
       type: String,
-      required: true,
-      trim: true,
     },
 
     Password: {
       type: String,
-      required: true,
     },
+    confirmPassword: String,
 
     AccountType: {
       type: String,
-      enum: ["Admin", "User", "Broker" ,"Seller"],
+      // enum: ["Admin", "User", "Broker" ,"Seller"],
     },
+    role:String
 
     
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User",userSchema);
+
+module.exports = User;
