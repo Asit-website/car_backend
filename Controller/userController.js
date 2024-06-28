@@ -16,80 +16,128 @@ const getUsers = async ({ id, query, page, perPage }) => {
 };
 
 // const signin = async ({ name, email, phone, password }) => {
-const signin = async ({ FullName, Email,  Password, confirmPassword, AccountType }) => {
-    const checkUser = await User.findOne({ Email });
-    // const checkUser1 = await User.findOne({ phone });
+const signin = async (req ,res) => {
+    try {
+        // data fetch from req.body
+        const {  FullName, Email,  Password, confirmPassword, AccountType} = req.body;
+    
+        // validate data
+        if (
+          !FullName ||
+          !Email ||
+          !Password ||
+          !confirmPassword ||
+          !AccountType
+        ) {
+          return res.status(403).json({
+            success: false,
+            message: "all field are require",
+          });
+        }
+    
+        // 2 password match
+        if (confirmPassword !== Password) {
+          return res.status(400).json({
+            success: false,
+            message:
+              "password and confirmpassword vlaue does not match , please try again",
+          });
+        }
+        // check user already exist or not
+        const existingUser = await User.findOne({ Email });
 
-    // if (checkUser || checkUser1) {
-    if (checkUser) {
-        return { status: false, message: 'User already exists' };
-    }
-
-    if (Password !== confirmPassword) {
-        //    window.alert("password and confirmPassword must be same")
-        return { status: false, message: 'password and confirm password must be same' };
-    }
-
-    const pass = await bcrypt.hash(Password, 10);
-    const confirmPass = await bcrypt.hash(confirmPassword, 10);
-
-
-    let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true, // true for 465, false for other ports
-        auth: {
-            user: "webmaster.kushel@gmail.com",
-            pass: "paurymswxlpytekp",
-        },
-        from: "info@kusheldigi.com",
-        tls: {
-            rejectUnauthorized: false,
-        },
-    });
-
-    let info1 = await transporter.sendMail({
-        from: '"Kushel Digi Solutions" <info@kusheldigi.com>',
-        to: Email,
-        subject: "Your Registeration is Complete",
-        text: `
-            <div>
-                <div>login with the link: </div>
-            </div>
-        `,
-        html: `
-        <div>
-        <div>login with the link: </div>
-        </div>`
-    });
-    console.log(info1);
+        if (existingUser) {
+          return res.status(400).json({
+            success: false,
+            message: "user is alreay registered",
+          });
+        }
 
 
-    const newUser = new User({
-        FullName,
-        Email,
-        // phone,
-        Password: pass,
-        AccountType,
-        confirmPassword: confirmPass,
-        role: 'USER'
-    });
-    const saveUser = await newUser.save();
-    return { status: true, data: saveUser, message: 'User Registration Successfull' };
+        // hash password
+        const hashedPassword = await bcrypt.hash(Password, 10);
+    
+        const user = await User.create({
+          FullName,
+          Email,
+          Password: hashedPassword,
+          AccountType,
+        });
+    
+        // return res
+        return res.status(200).json({
+          success: true,
+          message: `user is registered successfullly`,
+          user,
+        });
+      } catch (error) {
+        console.log(`error in signup `, error);
+        return res.status(500).json({
+          success: false,
+          message: "user cannot be register please try again",
+        });
+      }
 };
 
-const login = async ({ Email, Password }) => {
-    let emailCheck = await User.findOne({ Email });
-    console.log("email" ,emailCheck);
-    if (!emailCheck) {
-        return { status: false, message: "Invalid Credentials" };
-    }
-    const passwordVerify = await bcrypt.compare(Password, emailCheck.Password);
-    if (!passwordVerify) {
-        return { status: false, message: "Invalid Credentials" };
-    }
-    let token = jwt.sign({ _id: emailCheck._id }, process.env.SK);
-    return { status: true, message: "Login success", token, user: emailCheck };
+const login = async (req ,res) => {
+    try {
+        //  get data from req.body
+        const { Email, Password } = req.body;
+    
+        //  validation data
+        if (!Email || !Password) {
+          return res.status(403).json({
+            success: false,
+            message: `all fields are required ,please try again`,
+          });
+        }
+        // user check exist of not
+        const user = await User.findOne({ Email });
+        
+        if (!user) {
+          return res.status(401).json({
+            success: false,
+            message: `please register before login`,
+          });
+        }
+    
+        const payload = {
+          Email: user.Email,
+          id: user._id,
+          AccountType: user.AccountType,
+        };
+    
+        // password match and generate jwt
+        if (await bcrypt.compare(Password, user.Password)) {
+          //  creating token
+          const token = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: "3d",
+          });
+    
+          // todo: toObject ki jrurt ho skti hai fat skta hai
+          user.token = token;
+          user.Password = undefined;
+    
+          // create cookie and send response
+          res.status(200).json({
+            status:true ,
+            message:'Successfuly login' , 
+            user , 
+            token
+          })
+        } else {
+          return res.status(401).json({
+            success: false,
+            message: `password inccorrect`,
+          });
+        }
+      } catch (error) {
+        console.log(`error in login `, error);
+        return res.status().json({
+          success: false,
+          message: ` login failure , please try again `,
+        });
+      }
 };
 
 module.exports = {

@@ -16,21 +16,8 @@ router.get('/getUsers', async (req, res) => {
     res.json(data);
 });
 
-router.post('/signin', async (req, res) => {
-    const data = await signin({ ...req.body });
-    if (!data.status) {
-        return res.status(400).json(data);
-    }
-    res.json(data);
-});
+router.post("/signin" , signin);
 
-router.post('/login', async (req, res) => {
-    console.log("in");
-    const data = await login({ ...req.body });
-    if (!data.status) {
-        return res.status(400).json(data);
-    }
-    res.json(data);
-});
+router.post('/login' , login);
 
 module.exports = router;

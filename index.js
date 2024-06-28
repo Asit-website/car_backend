@@ -4,27 +4,32 @@ require('./db/conn');
 const app = express();
 const cors = require('cors');
 const userRouter = require("./Router/userRouter");
+const sellerRouter = require("./Router/sellerRouter");
 const port = process.env.PORT;
+const fileUpload = require("express-fileupload");
 
+
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
+
+app.use(express.json());
+
+app.use(cors({
+  origin:"http://localhost:3000",
+  credentials:true
+}));
+
+app.use(
+  fileUpload({
+    useTempFiles:true,
+    tempFileDir:"/tmp"
+  })
+)
 
 app.use("/user", userRouter);
+app.use("/seller", sellerRouter);
 
-// Importing connectDb using CommonJS syntax
-// const { connectDb } = require('./db/user_conn.js');
-
-// Database Connection
-// connectDb();
-
-app.use(cors(
-  {
-      // origin: 'https://buildlinknetwork.com' ,
-      origin: 'http://localhost:3000/' ,
-      credentials:true ,
-      methods: ["GET", "POST", "PUT", "DELETE"],
-  }
-));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
 
 
