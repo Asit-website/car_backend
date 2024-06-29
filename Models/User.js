@@ -19,9 +19,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       // enum: ["Admin", "User", "Broker" ,"Seller"],
     },
-    // role:String
-
-    
+    phone:{
+      type:Number
+    },
+    location:{
+      type:String
+    },
+    Time:{
+      type:String
+    },
+    description:{
+      type:String
+    },
+    role:String
   },
   { timestamps: true }
 );

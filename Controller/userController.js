@@ -140,9 +140,45 @@ const login = async (req ,res) => {
       }
 };
 
+const updateUser = async ({ userId, FullName, Email, phone,AccountType ,location,description,Time  }) => {
+  try {
+
+      
+      // Check if the email is already taken by another user
+      const checkUser = await User.findOne({ Email: Email });
+      if (checkUser && checkUser._id != userId) {
+          return { status: false, data: null, message: 'Email already taken' };
+      }
+
+      // Prepare the update object
+      let updateObj = {
+        FullName, Email, phone,AccountType ,location,description,Time
+      };
+
+      // Upload file to Cloudinary and update img field if file is provided
+      // if (file && file !== "") {
+      //     const result = await uploadToCloudinary(file.path);
+      //     updateObj['img'] = {
+      //         url: result.url,
+      //         id: result.public_id
+      //     };
+      // }
+
+      // Update the user without modifying the _id field
+      const ans = await User.findByIdAndUpdate(userId, { $set: updateObj }, { new: true, omitUndefined: true });
+
+      return { status: true, data: ans, message: 'User Updated Successfully' };
+  } catch (error) {
+      console.error('Error updating user:', error);
+      return { status: false, data: null, message: 'Error updating user' };
+  }
+};
+
+
 module.exports = {
     verify,
     getUsers,
     login,
-    signin
+    signin,
+    updateUser
 }
