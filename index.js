@@ -7,10 +7,15 @@ const userRouter = require("./Router/userRouter");
 const sellerRouter = require("./Router/sellerRouter");
 const port = process.env.PORT;
 const fileUpload = require("express-fileupload");
+const {cloudinaryConnect} = require("./Config/cloudinary")
 
 
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
+
+
+// connect to cloudinary 
+cloudinaryConnect();
 
 
 app.use(express.json());

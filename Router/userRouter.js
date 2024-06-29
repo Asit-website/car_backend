@@ -1,5 +1,5 @@
 const express = require("express");
-const {signin,login,getUsers,verify,updateUser} = require("../Controller/userController");
+const {signin,login,getUsers,verify,updateUser , UpdateProfile} = require("../Controller/userController");
 
 const auth = require("../middleware/auth");
 
@@ -34,5 +34,7 @@ router.put('/updateUser/:userId', auth, async (req, res) => {
     }
 
 });
+
+router.post("/updateProfile/:userId" , UpdateProfile);
 
 module.exports = router;

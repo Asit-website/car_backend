@@ -79,6 +79,9 @@ const userSchema = new mongoose.Schema(
     RequestPriceLabel: {
       type: String,
     },
+    Photos: [{
+      type: String,
+    }],
     userId:{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User' 

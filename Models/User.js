@@ -17,20 +17,26 @@ const userSchema = new mongoose.Schema(
 
     AccountType: {
       type: String,
-      // enum: ["Admin", "User", "Broker" ,"Seller"],
     },
-    phone:{
-      type:Number
-    },
-    location:{
-      type:String
-    },
+  
     Time:{
       type:String
     },
     description:{
       type:String
     },
+    ProfilePic:{
+      type:String, 
+    },
+    Phone:{
+      type:String,
+    },
+    Location:{
+      type:String ,
+    }, 
+    Description:{
+      type :String,
+    } , 
     role:String
   },
   { timestamps: true }
