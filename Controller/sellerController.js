@@ -5,7 +5,9 @@ const { uploadToCloudinary } = require("../utils/cloudinary");
 exports.createCarList = async(req ,res)=>{
     try{
 
-        const { ListingTitle, Model,  Type , Years, Condition ,StockNumber , VINNumber , Mileage , Transmission , DriverType, EngineSize , Cylinders ,FuelType ,Doors ,Color , Seats , CityMPG , HighwayMPG , Description , RequestPriceLabel  ,RegularPrice , SalePrice } = req.body;
+        const { ListingTitle, Model,  Type , Years, Condition ,StockNumber , VINNumber , Mileage , Transmission , DriverType, EngineSize , Cylinders ,FuelType ,Doors ,Color , Seats , CityMPG , HighwayMPG , Description , RequestPriceLabel  ,RegularPrice , SalePrice , ListingFeatures } = req.body;
+
+        console.log("ListingFeatures" , ListingFeatures);
 
         const {userId} =req.params; 
 
@@ -27,12 +29,7 @@ exports.createCarList = async(req ,res)=>{
 
        photoUrls = await uploadPhotosToCloudinary(req.files);
 
-        console.log("phtourl " , photoUrls);
-
-
-
-
-         const carDetail = await Seller.create({ListingTitle, Model,  Type , Years, Condition ,StockNumber , VINNumber , Mileage , Transmission , DriverType, EngineSize , Cylinders ,FuelType ,Doors ,Color , Seats , CityMPG , HighwayMPG , Description , RequestPriceLabel  ,RegularPrice , SalePrice , userId:userId , Photos: photoUrls,  });
+         const carDetail = await Seller.create({ListingTitle, Model,  Type , Years, Condition ,StockNumber , VINNumber , Mileage , Transmission , DriverType, EngineSize , Cylinders ,FuelType ,Doors ,Color , Seats , CityMPG , HighwayMPG , Description , RequestPriceLabel  ,RegularPrice , SalePrice , userId:userId , Photos: photoUrls, ListingFeatures });
 
          return res.status(200).json({
             status:true,

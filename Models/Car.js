@@ -85,7 +85,14 @@ const userSchema = new mongoose.Schema(
     userId:{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User' 
-    }
+    } , 
+    ListingFeatures:[
+      {
+        type: String ,
+      }
+    ] , 
+
+
     
   },
   { timestamps: true }
