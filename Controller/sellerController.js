@@ -1,4 +1,6 @@
 const Seller = require("../Models/Car")
+const CarBid = require("../Models/CarBid")
+
 const { uploadToCloudinary } = require("../utils/cloudinary");
 
 
@@ -8,6 +10,9 @@ exports.createCarList = async(req ,res)=>{
         const { ListingTitle, Model,  Type , Years, Condition ,StockNumber , VINNumber , Mileage , Transmission , DriverType, EngineSize , Cylinders ,FuelType ,Doors ,Color , Seats , CityMPG , HighwayMPG , Description , RequestPriceLabel  ,RegularPrice , SalePrice , ListingFeatures } = req.body;
 
         console.log("ListingFeatures" , ListingFeatures);
+
+         featuresArray = ListingFeatures.split(',');
+
 
         const {userId} =req.params; 
 
@@ -27,9 +32,11 @@ exports.createCarList = async(req ,res)=>{
          return photoUrls;
        };
 
-       photoUrls = await uploadPhotosToCloudinary(req.files);
+        if(req.files){
+           photoUrls = await uploadPhotosToCloudinary(req?.files);
+         }
 
-         const carDetail = await Seller.create({ListingTitle, Model,  Type , Years, Condition ,StockNumber , VINNumber , Mileage , Transmission , DriverType, EngineSize , Cylinders ,FuelType ,Doors ,Color , Seats , CityMPG , HighwayMPG , Description , RequestPriceLabel  ,RegularPrice , SalePrice , userId:userId , Photos: photoUrls, ListingFeatures });
+         const carDetail = await Seller.create({ListingTitle, Model,  Type , Years, Condition ,StockNumber , VINNumber , Mileage , Transmission , DriverType, EngineSize , Cylinders ,FuelType ,Doors ,Color , Seats , CityMPG , HighwayMPG , Description , RequestPriceLabel  ,RegularPrice , SalePrice , userId:userId , Photos: photoUrls, ListingFeatures:featuresArray });
 
          return res.status(200).json({
             status:true,
@@ -53,7 +60,7 @@ exports.getMyCars = async(req ,res)=>{
 
         const {userId} = req.params;
 
-         const CarDetails = await Seller.find({userId});
+         const CarDetails = await Seller.find({userId}).populate("Bid");
 
          return res.status(200).json({
             status:true ,
@@ -92,12 +99,46 @@ exports.getAllCars = async({id, query, page, perPage})=>{
    let data;
 
    if (page && page !== "" && page !== "undefined") {
-       data = await Seller.find({ $and: and }).skip((page - 1) * perPage).limit(perPage);
+       data = await Seller.find({ $and: and }).skip((page - 1) * perPage).limit(perPage).populate({
+         path: 'Bid',
+         populate: { path: 'userId' } 
+       }).populate('userId'); 
    }
    else
    {
-       data = await Seller.find({ $and: and });
+       data = await Seller.find({ $and: and }).populate({
+         path: 'Bid',
+         populate: { path: 'userId' } 
+       }).populate('userId'); 
    }
    
    return { status: true, data };
+}
+
+exports.putBitAmount = async(req ,res)=>{
+   try{
+
+      const {BidAmount ,userId} = req.body;
+
+      const {carId} = req.params;
+    
+       const ans = await CarBid.create({BidAmount , userId});
+
+        const carDetail = await Seller.findByIdAndUpdate(carId ,  { $push: { Bid: ans?._id } }, {new:true});
+
+
+        return res.status(200).json({
+         status:true ,
+         carDetail
+        })
+
+        
+
+   } catch(error){
+      console.log(error);
+      return res.status(500).json({
+         status:false ,
+         message:"Internal server error"
+      })
+   }
 }
