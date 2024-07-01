@@ -102,7 +102,7 @@ exports.getAllCars = async({id, query, page, perPage})=>{
        data = await Seller.find({ $and: and }).skip((page - 1) * perPage).limit(perPage).populate({
          path: 'Bid',
          populate: { path: 'userId' } 
-       }).populate('userId'); 
+       }).populate('userId' ); 
    }
    else
    {
