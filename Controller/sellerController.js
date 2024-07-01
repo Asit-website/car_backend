@@ -72,24 +72,32 @@ exports.getMyCars = async(req ,res)=>{
 }
 
 
-exports.getAllCars = async(req ,res)=>{
-    try{
+exports.getAllCars = async({id, query, page, perPage})=>{
+   
+   let and = [];
 
+   if (id && id !== "" && id !== "undefined") {
+       and.push({ _id: id });
+   }
 
-         const CarDetails = await Seller.find({});
+   if (query && query !== "" && query !== "undefined") {
+       console.log(query);
+       and.push({ title: { $regex: query, $options: "i" } });
+   }
 
-         return res.status(200).json({
-            status:true ,
-            CarDetails
-         })
-     
+   if (and.length === 0) {
+       and.push({});
+   }
+   // const count = await Project.count({ $and: and });
+   let data;
 
-    } catch(error){
-       console.log(error);
-       return res.status(500).json({
-        status:false , 
-        message:"internal server error "
-       })
-    }
-
+   if (page && page !== "" && page !== "undefined") {
+       data = await Seller.find({ $and: and }).skip((page - 1) * perPage).limit(perPage);
+   }
+   else
+   {
+       data = await Seller.find({ $and: and });
+   }
+   
+   return { status: true, data };
 }
