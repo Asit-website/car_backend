@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema(
     Description:{
       type :String,
     } , 
+    car:[{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"Car",
+  }],
     role:String
   },
   { timestamps: true }

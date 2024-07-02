@@ -1,6 +1,6 @@
 const Seller = require("../Models/Car")
 const CarBid = require("../Models/CarBid")
-
+const User = require("../Models/User")
 const { uploadToCloudinary } = require("../utils/cloudinary");
 
 
@@ -38,6 +38,8 @@ exports.createCarList = async(req ,res)=>{
 
          const carDetail = await Seller.create({ListingTitle, Model,  Type , Years, Condition ,StockNumber , VINNumber , Mileage , Transmission , DriverType, EngineSize , Cylinders ,FuelType ,Doors ,Color , Seats , CityMPG , HighwayMPG , Description , RequestPriceLabel  ,RegularPrice , SalePrice , userId:userId , Photos: photoUrls, ListingFeatures:featuresArray });
 
+         
+
          return res.status(200).json({
             status:true,
             carDetail
@@ -58,9 +60,9 @@ exports.createCarList = async(req ,res)=>{
 exports.getMyCars = async(req ,res)=>{
     try{
 
-        const {userId} = req.params;
+        const {userId} = req.params
 
-         const CarDetails = await Seller.find({userId}).populate("Bid");
+         const CarDetails = await Seller.find({id:userId}).populate("Bid");
 
          return res.status(200).json({
             status:true ,
@@ -141,4 +143,16 @@ exports.putBitAmount = async(req ,res)=>{
          message:"Internal server error"
       })
    }
+}
+
+exports.getCars = async ({ id }) => {
+    try {
+
+        const data = await User.findById(id).populate("car").exec();
+        console.log(data);
+        return { status: true, data };
+    } catch (error) {
+        console.log("error", error);
+    }
+
 }
